@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="cs">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{{ title || 'Správa uživatelů' }}</title>
+
+    <link rel="preconnect" href="https://fonts.bunny.net" />
+    <link
+      href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600,700"
+      rel="stylesheet"
+    />
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: { sans: ['Instrument Sans', 'sans-serif'] },
+            colors: { primary: { DEFAULT: '#5A45FF', dark: '#4634e0' } },
+          },
+        },
+      };
+    </script>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @stack('dumper')
+  </head>
+
+  <body class="min-h-screen bg-[#f9f9f8] font-sans text-[#21201c] antialiased">
+    {{{ await $slots.main() }}}
+  </body>
+</html>

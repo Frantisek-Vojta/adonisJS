@@ -1,0 +1,44 @@
+@component('components/layout', { title: 'Přehled' })
+  <header class="border-b border-[#e2e1de] bg-white">
+    <div class="mx-auto flex max-w-4xl items-center justify-between px-6 py-4">
+      <span class="font-semibold">Správa uživatelů</span>
+
+      <form method="POST" action="{{ route('auth.logout') }}">
+        {{ csrfField() }}
+        <button
+          type="submit"
+          class="rounded-lg border border-[#cfceca] px-3 py-1.5 text-sm font-medium transition hover:bg-[#f1f0ef]"
+        >
+          Odhlásit se
+        </button>
+      </form>
+    </div>
+  </header>
+
+  <main class="mx-auto max-w-4xl px-6 py-10">
+    <div class="rounded-2xl border border-[#e2e1de] bg-white p-6 shadow-sm">
+      <h1 class="text-xl font-semibold">Jste přihlášeni</h1>
+
+      <dl class="mt-6 grid gap-4 sm:grid-cols-2">
+        <div>
+          <dt class="text-xs uppercase tracking-wide text-[#8d8d86]">Jméno</dt>
+          <dd class="mt-0.5 text-sm">{{ user.fullName || '—' }}</dd>
+        </div>
+        <div>
+          <dt class="text-xs uppercase tracking-wide text-[#8d8d86]">E-mail</dt>
+          <dd class="mt-0.5 text-sm">{{ user.email }}</dd>
+        </div>
+        <div>
+          <dt class="text-xs uppercase tracking-wide text-[#8d8d86]">ID uživatele</dt>
+          <dd class="mt-0.5 text-sm">{{ user.id }}</dd>
+        </div>
+        <div>
+          <dt class="text-xs uppercase tracking-wide text-[#8d8d86]">Registrován</dt>
+          <dd class="mt-0.5 text-sm">
+            {{ user.createdAt.setLocale('cs').toFormat('d. M. yyyy HH:mm') }}
+          </dd>
+        </div>
+      </dl>
+    </div>
+  </main>
+@end

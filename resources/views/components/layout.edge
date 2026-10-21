@@ -1,18 +1,34 @@
+{{--
+  SPOLEČNÝ LAYOUT všech stránek.
+
+  Ostatní šablony ho vkládají přes @component('components/layout', { title })
+  a svůj obsah doplní místo $slots.main dole. Díky tomu mám <head>,
+  načtení fontů i stylů na jednom místě a stránky se neopakují.
+--}}
 <!DOCTYPE html>
 <html lang="cs">
   <head>
     <meta charset="utf-8" />
+    {{-- viewport = správné zobrazení na mobilu, bez něj by se stránka zmenšila --}}
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    {{-- Titulek předá volající šablona; '||' je záskok, když ho nepředá --}}
     <title>{{ title || 'Správa uživatelů' }}</title>
 
+    {{-- preconnect = prohlížeč si předem otevře spojení, font se načte dřív --}}
     <link rel="preconnect" href="https://fonts.bunny.net" />
     <link
       href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600,700"
       rel="stylesheet"
     />
 
+    {{--
+      Tailwind CSS z CDN. Pro školní projekt to stačí, ale je fér přiznat,
+      že do produkce se tahle varianta nedoporučuje – posílá se celý
+      framework a styly se generují až v prohlížeči.
+    --}}
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
+      {{-- Vlastní barvy a font, aby stránka nevypadala jako výchozí Tailwind --}}
       tailwind.config = {
         theme: {
           extend: {
@@ -22,11 +38,23 @@
         },
       };
     </script>
+    {{--
+      @vite vloží <script> a <link> na soubory zpracované Vite.
+      Ve vývoji (npm run dev) zajišťuje hot reload, v produkci odkáže
+      na zabalené a minifikované soubory.
+    --}}
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    {{-- Místo pro výstup ladicí funkce dumpViewer(), součást starter kitu --}}
     @stack('dumper')
   </head>
 
   <body class="min-h-screen bg-[#f9f9f8] font-sans text-[#21201c] antialiased">
+    {{--
+      Sem se vloží obsah konkrétní stránky.
+      Tři složené závorky {{{ }}} = vypiš bez escapování; tady to je
+      v pořádku a nutné, protože vkládám vygenerované HTML vlastní šablony,
+      ne vstup od uživatele.
+    --}}
     {{{ await $slots.main() }}}
   </body>
 </html>

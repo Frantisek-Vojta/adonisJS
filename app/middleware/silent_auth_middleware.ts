@@ -2,13 +2,21 @@ import type { HttpContext } from '@adonisjs/core/http'
 import type { NextFn } from '@adonisjs/core/types/http'
 
 /**
- * Silent auth middleware can be used as a global middleware to silent check
- * if the user is logged-in or not.
+ * „Tiché“ zjištění, jestli je uživatel přihlášený – request pokračuje dál
+ * v obou případech, nic neblokuje ani nepřesměrovává.
  *
- * The request continues as usual, even when the user is not logged-in.
+ * Hodilo by se na veřejnou stránku, která má jen přepnout menu mezi
+ * „Přihlásit se“ a „Odhlásit se“.
+ *
+ * POZOR (dobré vědět u obhajoby): tento soubor vygeneroval instalátor
+ * @adonisjs/auth, ale v mé aplikaci se NEPOUŽÍVÁ – není registrovaný
+ * ve start/kernel.ts ani přiřazený žádné routě. Všechny moje stránky jsou
+ * buď jen pro přihlášené (middleware auth), nebo jen pro nepřihlášené
+ * (middleware guest), takže ho nepotřebuju.
  */
 export default class SilentAuthMiddleware {
   async handle(ctx: HttpContext, next: NextFn) {
+    // check() vrací true/false a nikdy nevyhodí výjimku
     await ctx.auth.check()
 
     return next()

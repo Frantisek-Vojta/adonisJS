@@ -1,3 +1,13 @@
+{{--
+  PŘIHLAŠOVACÍ FORMULÁŘ (šablonovací jazyk Edge).
+
+  @component vloží sdílený layout (components/layout.edge) a předá mu
+  titulek stránky. Obsah uvnitř se do layoutu doplní místo $slots.main –
+  nemusím tedy v každé šabloně psát <html>, <head> apod.
+
+  Pozn.: třídy u elementů jsou Tailwind CSS (utility classes), vzhled
+  tedy řeším přímo v šabloně a nemám samostatný CSS soubor.
+--}}
 @component('components/layout', { title: 'Přihlášení' })
   <main class="flex min-h-screen items-center justify-center px-4 py-12">
     <div class="w-full max-w-md">
@@ -7,6 +17,14 @@
       </div>
 
       <div class="rounded-2xl border border-[#e2e1de] bg-white p-6 shadow-sm">
+        {{--
+          Chyba „Neplatný e-mail nebo heslo.“, kterou v controlleru posílám
+          přes session.flashErrors({ login: ... }).
+
+          @error('login') vytáhne zprávu z errorsBagu v session podle klíče
+          a uvnitř bloku ji zpřístupní jako {{ $message }}. Pokud žádná
+          chyba není, blok se vůbec nevykreslí.
+        --}}
         @error('login')
           <div
             class="mb-5 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
@@ -15,10 +33,35 @@
           </div>
         @end
 
+        {{--
+          Formulář míří na POST /login. URL nepíšu pevně, ale přes
+          route('auth.login') – název routy ze start/routes.ts.
+        --}}
         <form method="POST" action="{{ route('auth.login') }}" class="space-y-5">
+          {{--
+            CSRF OCHRANA – bez tohoto řádku formulář spadne na chybu 403.
+
+            csrfField() vloží skryté <input name="_csrf"> s tokenem
+            uloženým v session. Shield middleware pak u každého POSTu
+            kontroluje, že token v těle requestu odpovídá tomu v session.
+
+            Proč: zabraňuje útoku CSRF, kdy by cizí stránka na pozadí
+            odeslala formulář na můj web s přihlašovacími údaji. Cizí web
+            token ze mé session nezná, takže jeho požadavek Shield zahodí.
+          --}}
           {{ csrfField() }}
           <div>
             <label for="email" class="mb-1.5 block text-sm font-medium">E-mail</label>
+            {{--
+              flashMessages.get('email', '') předvyplní e-mail po neúspěšném
+              přihlášení (v controlleru session.flashOnly(['email'])),
+              aby ho uživatel nemusel psát znovu. Druhý parametr je výchozí
+              hodnota pro první zobrazení formuláře.
+
+              required a type="email" jsou validace prohlížeče – jsou jen
+              pro pohodlí uživatele, dají se obejít, takže skutečná validace
+              běží na serveru ve app/validators/auth.ts.
+            --}}
             <input
               id="email"
               type="email"
@@ -30,6 +73,12 @@
               placeholder="jan.novak@example.com"
               class="w-full rounded-lg border border-[#cfceca] px-3 py-2 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
             />
+            {{--
+              @inputError vypisuje chyby VALIDACE u konkrétního pole
+              (např. „Pole e-mail je povinné“) – tedy něco jiného než
+              @error('login') výše, což je moje vlastní chyba přihlášení.
+              $messages je pole, beru z něj první zprávu.
+            --}}
             @inputError('email')
               <p class="mt-1.5 text-sm text-red-600">{{ $messages[0] }}</p>
             @end
@@ -37,6 +86,11 @@
 
           <div>
             <label for="password" class="mb-1.5 block text-sm font-medium">Heslo</label>
+            {{--
+              type="password" skryje zadávané znaky. Hodnotu hesla zpátky
+              do formuláře záměrně nepředvyplňuju – heslo se nikdy nevrací
+              do session ani do HTML.
+            --}}
             <input
               id="password"
               type="password"

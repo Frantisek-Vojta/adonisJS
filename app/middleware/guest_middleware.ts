@@ -3,15 +3,18 @@ import type { NextFn } from '@adonisjs/core/types/http'
 import type { Authenticators } from '@adonisjs/auth/types'
 
 /**
- * Guest middleware is used to deny access to routes that should
- * be accessed by unauthenticated users.
+ * Opak auth middlewaru: pustí dál jen NEpřihlášeného uživatele.
  *
- * For example, the login page should not be accessible if the user
- * is already logged-in
+ * Používám ho na /login – nemá smysl, aby se přihlášený uživatel znovu
+ * přihlašoval, a kdyby formulář odeslal, přepsal by si session.
+ *
+ * Soubor vygeneroval `node ace add @adonisjs/auth --guard=session`,
+ * přiřazuju ho ve start/routes.ts jako `middleware.guest()`.
  */
 export default class GuestMiddleware {
   /**
-   * The URL to redirect to when user is logged-in
+   * Kam přesměrovat už přihlášeného uživatele. „/“ si pak samo přesměruje
+   * na /dashboard (viz start/routes.ts).
    */
   redirectTo = '/'
 
@@ -20,12 +23,21 @@ export default class GuestMiddleware {
     next: NextFn,
     options: { guards?: (keyof Authenticators)[] } = {}
   ) {
+    /**
+     * Projde všechny guardy (u mě jen 'web') a u každého se zeptá `check()`.
+     *
+     * Rozdíl proti authenticate(): check() jen vrátí true/false a nevyhodí
+     * výjimku – přesně to, co tady potřebuju, protože „nepřihlášený“ je
+     * na téhle routě žádoucí stav, ne chyba.
+     */
     for (let guard of options.guards || [ctx.auth.defaultGuard]) {
       if (await ctx.auth.use(guard).check()) {
+        // Druhý parametr `true` = zachovat query string při přesměrování
         return ctx.response.redirect(this.redirectTo, true)
       }
     }
 
+    // Nikdo přihlášený není → pokračuj na controller s formulářem
     return next()
   }
 }

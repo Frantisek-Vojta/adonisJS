@@ -1,8 +1,24 @@
+{{--
+  STRÁNKA PO PŘIHLÁŠENÍ.
+
+  Objekt `user` sem předává DashboardController přes
+  view.render('pages/dashboard', { user: ... }) – je to instance modelu
+  User, takže sahám přímo na jeho vlastnosti.
+
+  Na tuhle šablonu se nelze dostat bez session, protože routu /dashboard
+  chrání middleware `auth` (start/routes.ts).
+--}}
 @component('components/layout', { title: 'Přehled' })
   <header class="border-b border-[#e2e1de] bg-white">
     <div class="mx-auto flex max-w-4xl items-center justify-between px-6 py-4">
       <span class="font-semibold">Správa uživatelů</span>
 
+      {{--
+        Odhlášení je FORMULÁŘ, ne odkaz – POST /logout.
+        Důvod: akce mění stav (ruší session), takže musí být chráněná
+        CSRF tokenem. Na obyčejný <a href="/logout"> by stačilo, aby
+        uživatel klikl na podstrčený odkaz a odhlásil se.
+      --}}
       <form method="POST" action="{{ route('auth.logout') }}">
         {{ csrfField() }}
         <button
@@ -19,9 +35,18 @@
     <div class="rounded-2xl border border-[#e2e1de] bg-white p-6 shadow-sm">
       <h1 class="text-xl font-semibold">Jste přihlášeni</h1>
 
+      {{--
+        Výpis údajů o přihlášeném uživateli. Slouží jako důkaz, že session
+        funguje – data se čtou z databáze podle ID v session cookie.
+
+        {{ }} vypisuje hodnotu a automaticky ji escapuje (převede < > &
+        na entity), takže případné HTML ve jméně se nevykreslí jako kód.
+        To je obrana proti XSS a je to ve Edge výchozí chování.
+      --}}
       <dl class="mt-6 grid gap-4 sm:grid-cols-2">
         <div>
           <dt class="text-xs uppercase tracking-wide text-[#8d8d86]">Jméno</dt>
+          {{-- Jméno je v databázi nullable, proto `|| '—'` jako záskok --}}
           <dd class="mt-0.5 text-sm">{{ user.fullName || '—' }}</dd>
         </div>
         <div>
@@ -35,6 +60,12 @@
         <div>
           <dt class="text-xs uppercase tracking-wide text-[#8d8d86]">Registrován</dt>
           <dd class="mt-0.5 text-sm">
+            {{--
+              createdAt není string, ale objekt DateTime z knihovny Luxon
+              (tak ho Lucid naplní podle dekorátoru @column.dateTime).
+              Proto na něm můžu volat setLocale('cs') a toFormat() a vypsat
+              české datum ve formátu 21. 10. 2026 14:30.
+            --}}
             {{ user.createdAt.setLocale('cs').toFormat('d. M. yyyy HH:mm') }}
           </dd>
         </div>

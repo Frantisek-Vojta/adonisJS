@@ -1,0 +1,28 @@
+{{--
+  FORMULÁŘ PRO NOVÉHO UŽIVATELE – část „Create“ z CRUD.
+
+  Samotná pole jsou v komponentě components/user_form, kterou používá
+  i stránka úpravy. Tady jen nastavím, kam se formulář odešle a jak se
+  jmenuje tlačítko.
+
+  `user: null` předávám výslovně, aby komponenta věděla, že nemá co
+  předvyplňovat. `isEdit: false` zapne u hesla atribut required.
+--}}
+@component('components/layout', { title: 'Nový uživatel' })
+  @!component('components/app_header', { active: 'users' })
+
+  <main class="mx-auto max-w-xl px-6 py-10">
+    @include('components/flash_messages')
+
+    <h1 class="mb-6 text-xl font-semibold">Nový uživatel</h1>
+
+    <div class="rounded-2xl border border-[#e2e1de] bg-white p-6 shadow-sm">
+      @!component('components/user_form', {
+        action: route('users.store'),
+        user: null,
+        submitLabel: 'Vytvořit uživatele',
+        isEdit: false,
+      })
+    </div>
+  </main>
+@end

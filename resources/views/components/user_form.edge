@@ -1,0 +1,117 @@
+{{--
+  SPOLEČNÝ FORMULÁŘ pro vytvoření i úpravu uživatele.
+
+  Proč jedna komponenta a ne dvě šablony: oba formuláře mají stejná pole
+  i stejné chybové hlášky, lišily by se jen cílovou adresou a textem
+  tlačítka. Kdybych je napsal dvakrát, musel bych každou změnu dělat
+  na dvou místech.
+
+  Props, které komponenta čeká:
+  action      – URL, kam se formulář odešle
+  user        – editovaný uživatel, nebo null při vytváření
+  submitLabel – text na tlačítku
+  isEdit      – true u úpravy; přepíná popisek u hesla
+
+  Zachování vyplněných hodnot po chybě:
+  `flashMessages.get('fullName', záskok)` vezme hodnotu z minulého
+  odeslání, kterou AdonisJS po chybě validace uloží do session. Když tam
+  nic není (první zobrazení), použije se záskok – u úpravy údaj z databáze,
+  u vytváření prázdný string.
+--}}
+<form method="POST" action="{{ action }}" class="space-y-5">
+  {{-- Bez CSRF tokenu by Shield požadavek odmítl (403) --}}
+  {{ csrfField() }}
+  <div>
+    <label for="fullName" class="mb-1.5 block text-sm font-medium">
+      Jméno
+      <span class="font-normal text-[#8d8d86]">(nepovinné)</span>
+    </label>
+    <input
+      id="fullName"
+      type="text"
+      name="fullName"
+      value="{{ flashMessages.get('fullName', user ? user.fullName || '' : '') }}"
+      autocomplete="name"
+      placeholder="Jan Novák"
+      class="w-full rounded-lg border border-[#cfceca] px-3 py-2 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
+    />
+    {{-- @inputError vypíše chyby validace pro konkrétní pole --}}
+    @inputError('fullName')
+      <p class="mt-1.5 text-sm text-red-600">{{ $messages[0] }}</p>
+    @end
+  </div>
+
+  <div>
+    <label for="email" class="mb-1.5 block text-sm font-medium">E-mail</label>
+    <input
+      id="email"
+      type="email"
+      name="email"
+      value="{{ flashMessages.get('email', user ? user.email : '') }}"
+      required
+      autocomplete="email"
+      placeholder="jan.novak@example.com"
+      class="w-full rounded-lg border border-[#cfceca] px-3 py-2 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
+    />
+    {{--
+      Sem spadne i chyba z mého vlastního pravidla isEmailUnique
+      („Uživatel s tímto e-mailem už existuje“), protože ji pravidlo
+      hlásí právě pro pole email.
+    --}}
+    @inputError('email')
+      <p class="mt-1.5 text-sm text-red-600">{{ $messages[0] }}</p>
+    @end
+  </div>
+
+  <div>
+    <label for="password" class="mb-1.5 block text-sm font-medium">
+
+
+
+      Heslo
+
+
+
+      @if(isEdit)
+        <span class="font-normal text-[#8d8d86]">(nechte prázdné pro zachování)</span>
+      @else
+        <span class="font-normal text-[#8d8d86]">(alespoň 8 znaků)</span>
+      @end
+    </label>
+    {{--
+      Hodnotu hesla nikdy nepředvyplňuju – ani z databáze (je tam jen hash),
+      ani z minulého odeslání. Heslo se do HTML nevrací.
+
+      `required` je jen u vytváření; u úpravy je prázdné pole povolené
+      a znamená „heslo neměnit“ (ošetřeno v UsersController.update).
+    --}}
+    <input
+      id="password"
+      type="password"
+      name="password"
+      {{ isEdit ? '' : 'required' }}
+      autocomplete="new-password"
+      placeholder="••••••••"
+      class="w-full rounded-lg border border-[#cfceca] px-3 py-2 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
+    />
+    @inputError('password')
+      <p class="mt-1.5 text-sm text-red-600">{{ $messages[0] }}</p>
+    @end
+  </div>
+
+  <div class="flex items-center gap-3 pt-2">
+    <button
+      type="submit"
+      class="rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-primary-dark"
+    >
+      {{ submitLabel }}
+    </button>
+    {{-- Odkaz zpět, aby se uživatel nemusel vracet tlačítkem prohlížeče --}}
+    <a
+      href="{{ route('users.index') }}"
+      class="rounded-lg border border-[#cfceca] px-4 py-2.5 text-sm font-medium transition hover:bg-[#f1f0ef]"
+    >
+      Zrušit
+    </a>
+  </div>
+</form>

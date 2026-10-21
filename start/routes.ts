@@ -19,6 +19,7 @@ import { middleware } from '#start/kernel'
  */
 const AuthController = () => import('#controllers/auth_controller')
 const DashboardController = () => import('#controllers/dashboard_controller')
+const UsersController = () => import('#controllers/users_controller')
 
 /**
  * Kořen webu nemá vlastní stránku, jen pošle uživatele na /dashboard.
@@ -63,5 +64,30 @@ router
   .group(() => {
     router.get('/dashboard', [DashboardController, 'index']).as('dashboard')
     router.post('/logout', [AuthController, 'logout']).as('auth.logout')
+
+    /**
+     * CRUD uživatelů. Routy drží konvenci, kterou používá i Laravel:
+     * cesta je v množném čísle a akce se pozná z HTTP metody.
+     *
+     * Dvě věci, které stojí za vysvětlení:
+     *
+     * 1) Úprava a mazání jsou POST, i když „správně“ podle REST by to měl
+     *    být PUT a DELETE. Důvod je praktický: HTML formulář umí jen GET
+     *    a POST. Obejít to jde přepínačem `allowMethodSpoofing` v
+     *    config/app.ts (skryté pole _method), ale ten je vypnutý a nechtěl
+     *    jsem ho zapínat kvůli kosmetice. Podstatné je, že žádná akce
+     *    měnící data není na GET – takže všechny projdou CSRF kontrolou.
+     *
+     * 2) `/users/create` je zaregistrovaná před `/users/:id/edit`. Tady
+     *    ke kolizi dojít nemůže (tvary cest jsou různé), ale je zvyk psát
+     *    konkrétní cesty před parametrické – kdybych později přidal
+     *    `/users/:id`, zachytilo by `:id` i slovo "create".
+     */
+    router.get('/users', [UsersController, 'index']).as('users.index')
+    router.get('/users/create', [UsersController, 'create']).as('users.create')
+    router.post('/users', [UsersController, 'store']).as('users.store')
+    router.get('/users/:id/edit', [UsersController, 'edit']).as('users.edit')
+    router.post('/users/:id', [UsersController, 'update']).as('users.update')
+    router.post('/users/:id/delete', [UsersController, 'destroy']).as('users.destroy')
   })
   .use(middleware.auth())

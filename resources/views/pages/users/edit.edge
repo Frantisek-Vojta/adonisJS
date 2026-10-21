@@ -1,0 +1,30 @@
+{{--
+  FORMULÁŘ PRO ÚPRAVU UŽIVATELE – část „Update“ z CRUD.
+
+  Objekt `user` předává UsersController.edit() přes User.findOrFail(id).
+  Formulář je stejná komponenta jako u vytváření, jen s jiným cílem,
+  předvyplněnými hodnotami a `isEdit: true` (heslo pak není povinné).
+
+  route('users.update', [user.id]) doplní ID do cesty /users/:id.
+--}}
+@component('components/layout', { title: 'Upravit uživatele' })
+  @!component('components/app_header', { active: 'users' })
+
+  <main class="mx-auto max-w-xl px-6 py-10">
+    @include('components/flash_messages')
+
+    <div class="mb-6">
+      <h1 class="text-xl font-semibold">Upravit uživatele</h1>
+      <p class="mt-1 text-sm text-[#63635e]">{{ user.email }} · ID {{ user.id }}</p>
+    </div>
+
+    <div class="rounded-2xl border border-[#e2e1de] bg-white p-6 shadow-sm">
+      @!component('components/user_form', {
+        action: route('users.update', [user.id]),
+        user: user,
+        submitLabel: 'Uložit změny',
+        isEdit: true,
+      })
+    </div>
+  </main>
+@end

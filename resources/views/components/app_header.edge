@@ -1,0 +1,58 @@
+{{--
+  SPOLEČNÁ HLAVIČKA přihlášené části aplikace.
+
+  Dřív byla tato hlavička napsaná přímo v dashboard.edge. S přidáním CRUD
+  stránek by se musela opsat ještě třikrát, tak jsem ji vytáhl do
+  komponenty – teď je navigace na jednom místě.
+
+  Prop `active` říká, který odkaz se má zvýraznit. Volající šablona pošle
+  @component('components/app_header', { active: 'users' }).
+--}}
+<header class="border-b border-[#e2e1de] bg-white">
+  <div class="mx-auto flex max-w-4xl items-center justify-between px-6 py-4">
+    <div class="flex items-center gap-6">
+      <span class="font-semibold">Správa uživatelů</span>
+
+      <nav class="flex items-center gap-4 text-sm">
+        {{--
+          Odkazy skládám přes route('...'), ne pevným "/dashboard" –
+          názvy rout jsou v start/routes.ts a URL se dá změnit na
+          jednom místě.
+
+          Ternární operátor jen přepíná třídy podle toho, na které
+          stránce jsem.
+        --}}
+        <a
+          href="{{ route('dashboard') }}"
+          class="{{
+            active === 'dashboard'
+              ? 'font-medium text-primary'
+              : 'text-[#63635e] hover:text-[#21201c]'
+          }}"
+        >
+          Přehled
+        </a>
+        <a
+          href="{{ route('users.index') }}"
+          class="{{
+            active === 'users'
+              ? 'font-medium text-primary'
+              : 'text-[#63635e] hover:text-[#21201c]'
+          }}"
+        >
+          Uživatelé
+        </a>
+      </nav>
+    </div>
+    {{-- Odhlášení musí být POST kvůli CSRF – viz komentář v routes.ts --}}
+    <form method="POST" action="{{ route('auth.logout') }}">
+      {{ csrfField() }}
+      <button
+        type="submit"
+        class="rounded-lg border border-[#cfceca] px-3 py-1.5 text-sm font-medium transition hover:bg-[#f1f0ef]"
+      >
+        Odhlásit se
+      </button>
+    </form>
+  </div>
+</header>

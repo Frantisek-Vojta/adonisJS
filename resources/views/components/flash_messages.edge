@@ -1,0 +1,26 @@
+{{--
+  VÝPIS FLASH ZPRÁV (zelená pro úspěch, červená pro chybu).
+
+  Flash zpráva = text uložený do session, který přežije jedno přesměrování
+  a pak se sám smaže. Controller je posílá přes session.flash('success', ...)
+  po úspěšném uložení nebo smazání.
+
+  @flashMessage('klíč') je tag z balíčku @adonisjs/session. Vykreslí svůj
+  obsah jen tehdy, když zpráva s daným klíčem v session je, a zpřístupní
+  ji jako {{ $message }}.
+
+  Je to vlastní komponenta, protože se používá na všech CRUD stránkách.
+--}}
+@flashMessage('success')
+  <div
+    class="mb-6 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800"
+  >
+    {{ $message }}
+  </div>
+@end
+
+@flashMessage('error')
+  <div class="mb-6 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+    {{ $message }}
+  </div>
+@end

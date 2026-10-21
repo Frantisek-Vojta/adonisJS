@@ -21,10 +21,32 @@ vine.messagesProvider = new SimpleMessagesProvider(
    * z druhého parametru.
    */
   {
-    required: 'Pole {{ field }} je povinné',
-    string: 'Pole {{ field }} musí být text',
-    email: 'Zadejte platnou e-mailovou adresu',
-    accepted: 'Pole {{ field }} musí být potvrzeno',
+    'required': 'Pole {{ field }} je povinné',
+    'string': 'Pole {{ field }} musí být text',
+    'email': 'Zadejte platnou e-mailovou adresu',
+    'accepted': 'Pole {{ field }} musí být potvrzeno',
+
+    /**
+     * Pravidla na délku používají formuláře CRUD uživatelů.
+     *
+     * Klíč ve tvaru `pole.pravidlo` má přednost před obecným `pravidlo`,
+     * takže si můžu u každého pole napsat zprávu zvlášť. Dělám to kvůli
+     * české gramatice: po dvojce je „2 znaky“, ale po osmičce „8 znaků“.
+     * Jedna šablona s `{{ min }}` by vždycky jeden z těch případů
+     * zkomolila („alespoň 2 znaků“).
+     */
+    'fullName.minLength': 'Jméno musí mít alespoň 2 znaky',
+    'fullName.maxLength': 'Jméno může mít nejvýše 100 znaků',
+    'password.minLength': 'Heslo musí mít alespoň 8 znaků',
+    'password.maxLength': 'Heslo může mít nejvýše 180 znaků',
+
+    /**
+     * Obecný záskok pro pole, která výše vyjmenovaná nejsou. Je naschvál
+     * formulovaný bez podstatného jména za číslem, aby byl správný pro
+     * jakoukoli hodnotu.
+     */
+    'minLength': 'Pole {{ field }} je příliš krátké (minimum je {{ min }})',
+    'maxLength': 'Pole {{ field }} je příliš dlouhé (maximum je {{ max }})',
   },
 
   /**
@@ -34,5 +56,6 @@ vine.messagesProvider = new SimpleMessagesProvider(
   {
     email: 'e-mail',
     password: 'heslo',
+    fullName: 'jméno',
   }
 )
